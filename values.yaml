@@ -1,0 +1,64 @@
+images:
+  airflow:
+    repository: ~
+    tag: ~
+    # Specifying digest takes precedence over tag.
+    digest: ~
+
+data:
+  # Secret for postgresql connection
+  metadataSecretName: airflow-db-credentials
+
+# Do not create a postgresql database
+postgresql:
+  enabled: false
+
+# PgBouncer settings
+pgbouncer:
+  enabled: true
+
+# Webserver key
+webserverSecretKeySecretName: webserver-secret-key
+webserverSecretKey: webserver-secret-key
+
+webserver:
+  livenessProbe:
+    initialDelaySeconds: 60
+    timeoutSeconds: 10
+
+  readinessProbe:
+    initialDelaySeconds: 60
+    timeoutSeconds: 10
+
+# Dags
+dags:
+  gitSync:
+    enabled: true
+    repo: git@github.com:acrulopez/test-airflow-dags.git
+    branch: main
+    depth: 5
+    subPath: dev
+    sshKeySecret: gitsync-creds
+
+# Airflow executor
+# One of: LocalExecutor, LocalKubernetesExecutor, CeleryExecutor, KubernetesExecutor, CeleryKubernetesExecutor
+executor: KubernetesExecutor
+
+# Fernet key
+fernetKeySecretName: fernet-key
+
+# Environment variables for the configuration
+# Check https://airflow.apache.org/docs/apache-airflow/stable/configurations-ref.html
+env:
+  - name: AIRFLOW__WEBSERVER__ENABLE_PROXY_FIX
+    value: "True"
+  - name: AIRFLOW__API__AUTH_BACKENDS
+    value: airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.default
+  - name: AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT
+    value: google-cloud-platform://
+  - name: AIRFLOW__WEBSERVER__WEB_SERVER_MASTER_TIMEOUT
+    value: "300"
+  - name: AIRFLOW__WEBSERVER__INSTANCE_NAME
+    value: Airflow dev
+  - name: AIRFLOW__WEBSERVER__NAVBAR_COLOR
+    value: "#EDC464"
