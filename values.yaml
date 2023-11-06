@@ -5,9 +5,13 @@ images:
     # Specifying digest takes precedence over tag.
     digest: ~
 
-data:
-  # Secret for postgresql connection
-  metadataSecretName: airflow-db-credentials
+  data:
+    # Secret for postgresql connection
+    metadataSecretName: airflow-db-credentials
+    brokerUrlSecretName: airflow-broker-url
+
+  redis:
+    passwordSecretName: airflow-redis-password
 
 # Do not create a postgresql database
 postgresql:
@@ -42,7 +46,7 @@ dags:
 
 # Airflow executor
 # One of: LocalExecutor, LocalKubernetesExecutor, CeleryExecutor, KubernetesExecutor, CeleryKubernetesExecutor
-executor: KubernetesExecutor
+executor: CeleryExecutor
 
 # Fernet key
 fernetKeySecretName: fernet-key
@@ -62,3 +66,14 @@ env:
     value: Airflow dev
   - name: AIRFLOW__WEBSERVER__NAVBAR_COLOR
     value: "#EDC464"
+# If deployed with ArgoCD or similar
+# createUserJob:
+#   useHelmHooks: false
+#   applyCustomEnv: false
+#   annotations:
+#     "sidecar.istio.io/inject": "false"
+# migrateDatabaseJob:
+#   useHelmHooks: false
+#   applyCustomEnv: false
+#   annotations:
+#     "sidecar.istio.io/inject": "false"
